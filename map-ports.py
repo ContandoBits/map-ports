@@ -26,4 +26,4 @@ for port in root.iter('port'):
 
 # Almacenamos los puertos abiertos separados por comas
 puertos_cadena = ','.join(puertos_abiertos)
-print("nmap -Pn -n -sV -p" + puertos_cadena + " " +ip)
+print("nmap -Pn -n -sV -p " + puertos_cadena + " " +ip)
