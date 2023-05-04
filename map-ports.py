@@ -15,15 +15,24 @@ tree = ET.parse(archivo_xml)
 # Obtenemos la raíz del árbol
 root = tree.getroot()
 
-# Obtenemos la dirección IP escaneada
-ip = root.find('host/address').get('addr')
+# Creamos un diccionario para almacenar los puertos abiertos asociados a cada dirección IP
+puertos_por_ip = {}
 
-# Recorremos todos los elementos "port" y obtenemos los números de puerto
-puertos_abiertos = []
-for port in root.iter('port'):
-    if port.find('state').get('state') == 'open':
-        puertos_abiertos.append(port.get('portid'))
+# Recorremos todos los elementos "host" y obtenemos las direcciones IP
+for host in root.iter('host'):
+    ip = host.find('address').get('addr')
+    
+    # Recorremos todos los elementos "port" y obtenemos los números de puerto
+    puertos_abiertos = []
+    for port in host.iter('port'):
+        if port.find('state').get('state') == 'open':
+            puertos_abiertos.append(port.get('portid'))
+    
+    # Si se encontraron puertos abiertos para esta dirección IP, los agregamos al diccionario
+    if puertos_abiertos:
+        puertos_por_ip[ip] = puertos_abiertos
 
-# Almacenamos los puertos abiertos separados por comas
-puertos_cadena = ','.join(puertos_abiertos)
-print("nmap -Pn -n -sV -p " + puertos_cadena + " " +ip)
+# Generamos el comando nmap para cada dirección IP y sus puertos asociados
+for ip, puertos_abiertos in puertos_por_ip.items():
+    puertos_cadena = ','.join(puertos_abiertos)
+    print("nmap -Pn -n -sV -p " + puertos_cadena + " " + ip)
